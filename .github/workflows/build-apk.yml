@@ -1,0 +1,184 @@
+name: Build Flutter APK
+
+# Trigger: on every push to main, or manually from GitHub Actions tab
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:   # allows you to press "Run workflow" manually
+
+jobs:name: Build Flutter APK
+
+# Trigger: on every push to main, or manually from GitHub Actions tab
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:   # allows you to press "Run workflow" manually
+
+jobs:
+  build-apk:
+    name: Build & Release APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Check out the repository code ──────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Set up Java (required by the Android SDK / Gradle) ─────────────
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # ── 3. Set up Flutter (stable channel) ────────────────────────────────
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+          channel: stable
+          cache: true          # cache the Flutter SDK between runs
+
+      # ── 4. Print Flutter & Dart versions for debugging ────────────────────
+      - name: Flutter version info
+        run: flutter --version
+
+      # ── 5. Install pub dependencies ───────────────────────────────────────
+      - name: Install dependencies
+        run: flutter pub get
+
+      # ── 6. Run analyzer (catches code issues before building) ─────────────
+      - name: Analyze code
+        run: flutter analyze --no-fatal-infos
+
+      # ── 7. Build the release APK ──────────────────────────────────────────
+      - name: Build release APK
+        run: flutter build apk --release --no-shrink
+
+      # ── 8. Rename APK to include build number for clarity ─────────────────
+      - name: Rename APK
+        run: |
+          mv build/app/outputs/flutter-apk/app-release.apk \
+             build/app/outputs/flutter-apk/DictionnaireApp-v${{ github.run_number }}.apk
+
+      # ── 9. Upload APK as a workflow artifact (downloadable from Actions) ──
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DictionnaireApp-v${{ github.run_number }}
+          path: build/app/outputs/flutter-apk/DictionnaireApp-v${{ github.run_number }}.apk
+          retention-days: 30    # keep the APK for 30 days
+
+      # ── 10. Create a GitHub Release with the APK attached ─────────────────
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: "Dictionnaire App v1.0.${{ github.run_number }}"
+          body: |
+            ## 🇫🇷 Visual French–English Dictionary
+
+            ### What's included
+            - 50 words across 6 categories (Animals, Food, House, School, Transport, Nature)
+            - Offline SQLite database
+            - Search in French and English
+            - Favorites system
+            - Audio pronunciation button
+
+            ### Install on your Android tablet
+            1. Download the APK file below
+            2. Open it on your tablet
+            3. If prompted, allow installation from unknown sources
+            4. Tap Install
+
+            > Built automatically by GitHub Actions — commit `${{ github.sha }}`
+          files: build/app/outputs/flutter-apk/DictionnaireApp-v${{ github.run_number }}.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-apk:
+    name: Build & Release APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Check out the repository code ──────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Set up Java (required by the Android SDK / Gradle) ─────────────
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # ── 3. Set up Flutter (stable channel) ────────────────────────────────
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+          channel: stable
+          cache: true          # cache the Flutter SDK between runs
+
+      # ── 4. Print Flutter & Dart versions for debugging ────────────────────
+      - name: Flutter version info
+        run: flutter --version
+
+      # ── 5. Install pub dependencies ───────────────────────────────────────
+      - name: Install dependencies
+        run: flutter pub get
+
+      # ── 6. Run analyzer (catches code issues before building) ─────────────
+      - name: Analyze code
+        run: flutter analyze --no-fatal-infos
+
+      # ── 7. Build the release APK ──────────────────────────────────────────
+      - name: Build release APK
+        run: flutter build apk --release --no-shrink
+
+      # ── 8. Rename APK to include build number for clarity ─────────────────
+      - name: Rename APK
+        run: |
+          mv build/app/outputs/flutter-apk/app-release.apk \
+             build/app/outputs/flutter-apk/DictionnaireApp-v${{ github.run_number }}.apk
+
+      # ── 9. Upload APK as a workflow artifact (downloadable from Actions) ──
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DictionnaireApp-v${{ github.run_number }}
+          path: build/app/outputs/flutter-apk/DictionnaireApp-v${{ github.run_number }}.apk
+          retention-days: 30    # keep the APK for 30 days
+
+      # ── 10. Create a GitHub Release with the APK attached ─────────────────
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: "Dictionnaire App v1.0.${{ github.run_number }}"
+          body: |
+            ## 🇫🇷 Visual French–English Dictionary
+
+            ### What's included
+            - 50 words across 6 categories (Animals, Food, House, School, Transport, Nature)
+            - Offline SQLite database
+            - Search in French and English
+            - Favorites system
+            - Audio pronunciation button
+
+            ### Install on your Android tablet
+            1. Download the APK file below
+            2. Open it on your tablet
+            3. If prompted, allow installation from unknown sources
+            4. Tap Install
+
+            > Built automatically by GitHub Actions — commit `${{ github.sha }}`
+          files: build/app/outputs/flutter-apk/DictionnaireApp-v${{ github.run_number }}.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
