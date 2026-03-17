@@ -1,0 +1,36 @@
+name: visual_french_dict
+description: A bilingual illustrated French-English dictionary app
+version: 1.0.0+1
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # SQLite database for offline storage
+  sqflite: ^2.3.3
+  path: ^1.9.0
+
+  # Audio playback for pronunciations
+  audioplayers: ^6.1.0
+
+  # State management
+  provider: ^6.1.2
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Declare all asset folders
+  assets:
+    - assets/images/
+    - assets/audio/
